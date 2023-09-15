@@ -1,33 +1,45 @@
 import L from 'leaflet';
 import { template, getJSON } from '../util';
 
+var SOURCES = {
+  ADDRESSES: 'addresses',
+  GEOGRAPHIC_NAMES: 'geographic-names',
+  INTERPOLATED_ROAD_ADDRESSES: 'interpolated-road-addresses',
+  CADASTRAL_UNITS: 'cadastral-units'
+}
+
+// Formats address properties.
+function formatAddresses(properties) {
+  return properties;
+}
+
+// Formats geographic name properties.
+function formatGeographicNames(properties) {
+  return properties;
+}
+
+// Formats interpolated road address properties.
+function formatInterpolatedRoadAddresses(properties) {
+  return properties;
+}
+
+// Formats cadastral unit properties.
+function formatCadastralUnits(properties) {
+  return properties;
+}
+
 export var Mml = L.Class.extend({
   options: {
     serviceUrl: 'https://avoin-paikkatieto.maanmittauslaitos.fi/geocoding/v2/pelias/',
     apiKey: null, // MML API-key
-    geocodingQueryParams: {},
+    geocodingQueryParams: {
+      sources: SOURCES.GEOGRAPHIC_NAMES
+    },
     reverseQueryParams: {},
     htmlTemplate: function(r) {
       console.log(r);
       
-      var a = r.address,
-        // className,
-        parts = [];
-      // if (a.road || a.building) {
-      //   parts.push('{building} {road} {house_number}');
-      // }
-
-      // if (a.city || a.town || a.village || a.hamlet) {
-      //   className = parts.length > 0 ? 'leaflet-control-geocoder-address-detail' : '';
-      //   parts.push(
-      //     '<span class="' + className + '">{postcode} {city} {town} {village} {hamlet}</span>'
-      //   );
-      // }
-
-      // if (a.state || a.country) {
-      //   className = parts.length > 0 ? 'leaflet-control-geocoder-address-context' : '';
-      //   parts.push('<span class="' + className + '">{state} {country}</span>');
-      // }
+      var a = r.address;
 
       return template(parts.join('<br/>'), a, true);
     }
@@ -47,8 +59,8 @@ export var Mml = L.Class.extend({
       L.extend(
         {
           'api-key': this.options.apiKey,
-          text: query,
-          sources: 'geographic-names',
+          text: query, 
+          sources: this.options.geocodingQueryParams.sources ? this.options.geocodingQueryParams.sources : SOURCES.GEOGRAPHIC_NAMES, // Change default to addresses.
           crs: 'EPSG:4326', // Leaflet's map display CRS is different from the map's data CRS which EPSG:4326.
           lang: 'fi'
         },
@@ -59,19 +71,46 @@ export var Mml = L.Class.extend({
         
         var features = data.features;
         var results = [];
+
+        function findNewestObject(arr, property) {
+          var newestObject = null;
+          var newestTimestamp = null;
+          for (const obj of arr) {
+            var timestamp = new Date(obj[property]).getTime();
+            if (newestTimestamp === null || timestamp > newestTimestamp) {
+              newestTimestamp = timestamp;
+              newestObject = obj;
+            }
+          }
+          return newestObject;
+        }
         
         for (var i = features.length - 1; i >= 0; i--) {
-          // var bbox = features[i].boundingbox;
-          // for (var j = 0; j < 4; j++) bbox[j] = parseFloat(bbox[j]);
+          var properties;
+
+          if (this.options.geocodingQueryParams.sources == SOURCES.ADDRESSES) {
+            properties = formatAddresses(features[i].properties);
+          }
+          if (this.options.geocodingQueryParams.sources == SOURCES.GEOGRAPHIC_NAMES) {
+            properties = formatGeographicNames(features[i].properties);
+          }
+          if (this.options.geocodingQueryParams.sources == SOURCES.INTERPOLATED_ROAD_ADDRESSES) {
+            properties = formatInterpolatedRoadAddresses(features[i].properties);
+          }
+          if (this.options.geocodingQueryParams.sources == SOURCES.CADASTRAL_UNITS) {
+            properties = formatCadastralUnits(features[i].properties);
+          }
+
+          var names = properties.name;
+          var name = findNewestObject(names, "placeNameCreationTime");
+          
           // Reverse the coordinates array because the coordinates are in the wrong order for L.latLng.
           var c =  features[i].geometry.coordinates.reverse();
           results[i] = {
-            // icon: features[i].icon,
-            name: "",
+            name: name?.spelling,
             html: this.options.htmlTemplate ? this.options.htmlTemplate(features[i]) : undefined,
             bbox: L.latLngBounds(c, c),
             center: L.latLng(c[0], c[1]),
-            // properties: data[i]
           };
         }
 
@@ -80,38 +119,8 @@ export var Mml = L.Class.extend({
     );
   },
 
-  // Reverse geocoding is not used, so this can be removed.
-  reverse: function(location, scale, cb, context) {
-    console.log(location, scale, cb, context);
-    getJSON(
-      this.options.serviceUrl + 'reverse',
-      L.extend(
-        {
-          'api-key': this.options.apiKey,
-          lat: location.lat,
-          lon: location.lng,
-          zoom: Math.round(Math.log(scale / 256) / Math.log(2)),
-        },
-        this.options.reverseQueryParams
-      ),
-      L.bind(function(data) {
-        var result = [],
-          loc;
-
-        if (data && data.lat && data.lon) {
-          loc = L.latLng(data.lat, data.lon);
-          result.push({
-            name: data.display_name,
-            html: this.options.htmlTemplate ? this.options.htmlTemplate(data) : undefined,
-            center: loc,
-            bounds: L.latLngBounds(loc, loc),
-            properties: data
-          });
-        }
-
-        cb.call(context, result);
-      }, this)
-    );
+  reverse: function() {
+    console.log("Reverse geocoding is not supported.")
   }
 });
 
