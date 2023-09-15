@@ -8,6 +8,19 @@ var SOURCES = {
   CADASTRAL_UNITS: 'cadastral-units'
 }
 
+function findNewestObject(arr, property) {
+  var newestObject = null;
+  var newestTimestamp = null;
+  for (const obj of arr) {
+    var timestamp = new Date(obj[property]).getTime();
+    if (newestTimestamp === null || timestamp > newestTimestamp) {
+      newestTimestamp = timestamp;
+      newestObject = obj;
+    }
+  }
+  return newestObject;
+}
+
 // Formats address properties.
 function formatAddresses(properties) {
   return properties;
@@ -15,7 +28,11 @@ function formatAddresses(properties) {
 
 // Formats geographic name properties.
 function formatGeographicNames(properties) {
-  return properties;
+  var names = properties.name;
+  var name = findNewestObject(names, "placeNameCreationTime");
+  return {
+    name: name.spelling
+  };
 }
 
 // Formats interpolated road address properties.
@@ -40,6 +57,7 @@ export var Mml = L.Class.extend({
       console.log(r);
       
       var a = r.address;
+      var parts = [];
 
       return template(parts.join('<br/>'), a, true);
     }
@@ -72,19 +90,6 @@ export var Mml = L.Class.extend({
         var features = data.features;
         var results = [];
 
-        function findNewestObject(arr, property) {
-          var newestObject = null;
-          var newestTimestamp = null;
-          for (const obj of arr) {
-            var timestamp = new Date(obj[property]).getTime();
-            if (newestTimestamp === null || timestamp > newestTimestamp) {
-              newestTimestamp = timestamp;
-              newestObject = obj;
-            }
-          }
-          return newestObject;
-        }
-        
         for (var i = features.length - 1; i >= 0; i--) {
           var properties;
 
@@ -101,13 +106,12 @@ export var Mml = L.Class.extend({
             properties = formatCadastralUnits(features[i].properties);
           }
 
-          var names = properties.name;
-          var name = findNewestObject(names, "placeNameCreationTime");
-          
+          console.log(properties);
+
           // Reverse the coordinates array because the coordinates are in the wrong order for L.latLng.
           var c =  features[i].geometry.coordinates.reverse();
           results[i] = {
-            name: name?.spelling,
+            name: properties.name,
             html: this.options.htmlTemplate ? this.options.htmlTemplate(features[i]) : undefined,
             bbox: L.latLngBounds(c, c),
             center: L.latLng(c[0], c[1]),
