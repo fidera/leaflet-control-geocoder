@@ -21,28 +21,63 @@ function findNewestObject(arr, property) {
   return newestObject;
 }
 
-// Formats address properties.
+/**
+ * Formats address properties.
+ * @param {object} properties
+ * @returns {object}
+ */
 function formatAddresses(properties) {
-  return properties;
+  return {
+    name: properties.label, 
+    country: properties.country,
+    municipality: properties["label:municipality"],
+    continent: properties.continent
+  };
 }
 
-// Formats geographic name properties.
+/**
+ * Formats geographic name properties.
+ * @param {object} properties
+ * @returns {object}
+ */
 function formatGeographicNames(properties) {
   var names = properties.name;
   var name = findNewestObject(names, "placeNameCreationTime");
   return {
-    name: name.spelling
+    name: name.spelling,
+    country: properties.country,
+    region: properties["label:region"],
+    municipality: properties["label:municipality"],
+    continent: properties.continent
   };
 }
 
-// Formats interpolated road address properties.
+/**
+ * Formats interpolated road address properties.
+ * @param {object} properties
+ * @returns {object}
+ */
 function formatInterpolatedRoadAddresses(properties) {
-  return properties;
+  return {
+    name: properties.label, 
+    country: properties.country,
+    municipality: properties["label:municipality"],
+    continent: properties.continent
+  };
 }
 
-// Formats cadastral unit properties.
+/**
+ * Formats cadastral unit properties.
+ * @param {object} properties
+ * @returns {object}
+ */
 function formatCadastralUnits(properties) {
-  return properties;
+  return {
+    name: properties.label, 
+    country: properties.country,
+    region: properties["label:municipality"],
+    continent: properties.continent
+  };
 }
 
 export var Mml = L.Class.extend({
