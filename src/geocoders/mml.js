@@ -17,6 +17,12 @@ var SOURCES = {
   CADASTRAL_UNITS: 'cadastral-units'
 }
 
+/**
+ * Finds the newest object from an array.
+ * @param {array} arr - An array of objects
+ * @param {string} property - The name of a property which can be converted to a Date object.
+ * @returns {object}
+ */
 function findNewestObject(arr, property) {
   var newestObject = null;
   var newestTimestamp = null;
@@ -133,7 +139,8 @@ export var Mml = L.Class.extend({
           'api-key': this.options.apiKey,
           text: query, 
           sources: this.options.sources ? this.options.sources : SOURCES.ADDRESSES, 
-          crs: 'EPSG:4326', // Leaflet's map display CRS is different from the map's data CRS which EPSG:4326.
+          // Leaflet's map display CRS is different from the map's data CRS which EPSG:4326.
+          crs: 'EPSG:4326',
           lang: 'fi'
         },
         this.options.geocodingQueryParams
