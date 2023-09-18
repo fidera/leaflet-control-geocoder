@@ -48,10 +48,8 @@ function formatCadastralUnits(properties) {
 export var Mml = L.Class.extend({
   options: {
     serviceUrl: 'https://avoin-paikkatieto.maanmittauslaitos.fi/geocoding/v2/pelias/',
-    apiKey: null, // MML API-key
-    geocodingQueryParams: {
-      sources: SOURCES.GEOGRAPHIC_NAMES
-    },
+    apiKey: null, 
+    sources: null,
     reverseQueryParams: {},
     htmlTemplate: function(r) {
       console.log(r);
@@ -78,7 +76,7 @@ export var Mml = L.Class.extend({
         {
           'api-key': this.options.apiKey,
           text: query, 
-          sources: this.options.geocodingQueryParams.sources ? this.options.geocodingQueryParams.sources : SOURCES.GEOGRAPHIC_NAMES, // Change default to addresses.
+          sources: this.options.sources ? this.options.sources : SOURCES.ADDRESSES, 
           crs: 'EPSG:4326', // Leaflet's map display CRS is different from the map's data CRS which EPSG:4326.
           lang: 'fi'
         },
@@ -93,16 +91,16 @@ export var Mml = L.Class.extend({
         for (var i = features.length - 1; i >= 0; i--) {
           var properties;
 
-          if (this.options.geocodingQueryParams.sources == SOURCES.ADDRESSES) {
+          if (this.options.sources == SOURCES.ADDRESSES) {
             properties = formatAddresses(features[i].properties);
           }
-          if (this.options.geocodingQueryParams.sources == SOURCES.GEOGRAPHIC_NAMES) {
+          if (this.options.sources == SOURCES.GEOGRAPHIC_NAMES) {
             properties = formatGeographicNames(features[i].properties);
           }
-          if (this.options.geocodingQueryParams.sources == SOURCES.INTERPOLATED_ROAD_ADDRESSES) {
+          if (this.options.sources == SOURCES.INTERPOLATED_ROAD_ADDRESSES) {
             properties = formatInterpolatedRoadAddresses(features[i].properties);
           }
-          if (this.options.geocodingQueryParams.sources == SOURCES.CADASTRAL_UNITS) {
+          if (this.options.sources == SOURCES.CADASTRAL_UNITS) {
             properties = formatCadastralUnits(features[i].properties);
           }
 
@@ -124,7 +122,7 @@ export var Mml = L.Class.extend({
   },
 
   reverse: function() {
-    console.log("Reverse geocoding is not supported.")
+    return console.error("Reverse geocoding is not supported.")
   }
 });
 
