@@ -86,13 +86,23 @@ export var Mml = L.Class.extend({
     apiKey: null, 
     sources: null,
     reverseQueryParams: {},
-    htmlTemplate: function(r) {
-      console.log(r);
+    /**
+     * @param {object} properties
+     */
+    htmlTemplate: function(properties) {
+      console.log(properties);
       
-      var a = r.address;
       var parts = [];
 
-      return template(parts.join('<br/>'), a, true);
+      var nameStyle = "color: black;";
+      var subTitleStyle = "color: black; opacity: 0.75;";
+
+      if (properties.name) parts.push(`<span style="${nameStyle}">${properties.name}</span>`);
+      if (properties.region) parts.push(`<span style="${subTitleStyle}">${properties.region}</span>`);
+      if (properties.municipality) parts.push(`<span style="${subTitleStyle}">${properties.municipality}</span>`);
+      if (properties.country) parts.push(`<span style="${subTitleStyle}">${properties.country}</span>`);
+
+      return template(parts.join('<br/>'), properties, true);
     }
   },
 
@@ -145,7 +155,7 @@ export var Mml = L.Class.extend({
           var c =  features[i].geometry.coordinates.reverse();
           results[i] = {
             name: properties.name,
-            html: this.options.htmlTemplate ? this.options.htmlTemplate(features[i]) : undefined,
+            html: this.options.htmlTemplate ? this.options.htmlTemplate(properties) : undefined,
             bbox: L.latLngBounds(c, c),
             center: L.latLng(c[0], c[1]),
           };
