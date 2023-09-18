@@ -1,6 +1,15 @@
+/**
+ * mml.js
+ * 
+ * Geocoder for the Maanmittauslaitos geocoding API.
+ */
+
 import L from 'leaflet';
 import { template, getJSON } from '../util';
 
+/**
+ * Geocoder source types supported by the geocoding API of Maanmittauslaitos.
+ */
 var SOURCES = {
   ADDRESSES: 'addresses',
   GEOGRAPHIC_NAMES: 'geographic-names',
@@ -27,8 +36,12 @@ function findNewestObject(arr, property) {
  * @returns {object}
  */
 function formatAddresses(properties) {
+  var name = "";
+  if (properties.katunimi) name = properties.katunimi;
+  if (properties.katunumero) name = name + " " + properties.katunumero;
   return {
-    name: properties.label, 
+    name: name,
+    postalCode: properties.postinumero,
     country: properties.country,
     municipality: properties["label:municipality"],
     continent: properties.continent
@@ -58,8 +71,11 @@ function formatGeographicNames(properties) {
  * @returns {object}
  */
 function formatInterpolatedRoadAddresses(properties) {
+  var name = "";
+  if (properties.katunimi) name = properties.katunimi;
+  if (properties.katunumero) name = name + " " + properties.katunumero;
   return {
-    name: properties.label, 
+    name: name, 
     country: properties.country,
     municipality: properties["label:municipality"],
     continent: properties.continent
@@ -90,8 +106,6 @@ export var Mml = L.Class.extend({
      * @param {object} properties
      */
     htmlTemplate: function(properties) {
-      console.log(properties);
-      
       var parts = [];
 
       var nameStyle = "color: black;";
@@ -99,7 +113,7 @@ export var Mml = L.Class.extend({
 
       if (properties.name) parts.push(`<span style="${nameStyle}">${properties.name}</span>`);
       if (properties.region) parts.push(`<span style="${subTitleStyle}">${properties.region}</span>`);
-      if (properties.municipality) parts.push(`<span style="${subTitleStyle}">${properties.municipality}</span>`);
+      if (properties.municipality) parts.push(`<span style="${subTitleStyle}">${properties.postalCode ? properties.postalCode + " " : ""}${properties.municipality}</span>`);
       if (properties.country) parts.push(`<span style="${subTitleStyle}">${properties.country}</span>`);
 
       return template(parts.join('<br/>'), properties, true);
@@ -107,14 +121,11 @@ export var Mml = L.Class.extend({
   },
 
   initialize: function(options) {
-    console.log(options);
-    // Should return an error if an API key is missing.
-    // Merge options passed to constructor with the defaults defines in the class.
+    if (!options.apiKey) return console.error("Error: API key is missing.");
     L.Util.setOptions(this, options);
   },
 
   geocode: function(query, cb, context) {
-    console.log(query, cb, context);
     getJSON(
       this.options.serviceUrl + 'search',
       L.extend(
@@ -128,8 +139,6 @@ export var Mml = L.Class.extend({
         this.options.geocodingQueryParams
       ),
       L.bind(function(data) {
-        console.log(data);
-        
         var features = data.features;
         var results = [];
 
@@ -148,8 +157,6 @@ export var Mml = L.Class.extend({
           if (this.options.sources == SOURCES.CADASTRAL_UNITS) {
             properties = formatCadastralUnits(features[i].properties);
           }
-
-          console.log(properties);
 
           // Reverse the coordinates array because the coordinates are in the wrong order for L.latLng.
           var c =  features[i].geometry.coordinates.reverse();
