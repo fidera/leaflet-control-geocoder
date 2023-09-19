@@ -1,6 +1,6 @@
 {
   "name": "@fidera/leaflet-control-geocoder",
-  "version": "1.14.0",
+  "version": "1.14.1",
   "description": "Extendable geocoder with builtin support for OpenStreetMap Nominatim, Bing, Google, Mapbox, MapQuest, What3Words, Photon, Pelias, HERE, Neutrino, Plus codes",
   "main": "dist/Control.Geocoder.js",
   "module": "src/index.js",

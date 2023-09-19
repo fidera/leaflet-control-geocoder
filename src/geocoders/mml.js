@@ -26,7 +26,8 @@ var SOURCES = {
 function findNewestObject(arr, property) {
   var newestObject = null;
   var newestTimestamp = null;
-  for (const obj of arr) {
+  for (var index in arr) {
+    var obj = arr[index];
     var timestamp = new Date(obj[property]).getTime();
     if (newestTimestamp === null || timestamp > newestTimestamp) {
       newestTimestamp = timestamp;
@@ -112,15 +113,26 @@ export var Mml = L.Class.extend({
      */
     htmlTemplate: function(properties) {
       var parts = [];
-
       var nameStyle = "color: black;";
       var subTitleStyle = "color: black; opacity: 0.75;";
-
-      if (properties.name) parts.push(`<span style="${nameStyle}">${properties.name}</span>`);
-      if (properties.region) parts.push(`<span style="${subTitleStyle}">${properties.region}</span>`);
-      if (properties.municipality) parts.push(`<span style="${subTitleStyle}">${properties.postalCode ? properties.postalCode + " " : ""}${properties.municipality}</span>`);
-      if (properties.country) parts.push(`<span style="${subTitleStyle}">${properties.country}</span>`);
-
+      
+      if (properties.name) {
+        parts.push('<span style="' + nameStyle + '">' + properties.name + '</span>');
+      }  
+      if (properties.region) {
+        parts.push('<span style="' + subTitleStyle + '">' + properties.region + '</span>');
+      }
+      if (properties.municipality) {
+        var municipalityText = properties.municipality;
+        if (properties.postalCode) {
+          municipalityText = properties.postalCode + " " + municipalityText;
+        }
+        parts.push('<span style="' + subTitleStyle + '">' + municipalityText + '</span>');
+      }
+      if (properties.country) {
+        parts.push('<span style="' + subTitleStyle + '">' + properties.country + '</span>');
+      }
+      
       return template(parts.join('<br/>'), properties, true);
     }
   },

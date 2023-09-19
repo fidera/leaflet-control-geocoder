@@ -13,15 +13,17 @@ export var Nominatim = L.Class.extend({
       var a = r.address,
         parts = [];
       if (a.road || a.building) {
-        parts.push(`<span style="${nameStyle}">` + '{building} {road} {house_number}</span>');
+        parts.push('<span style="' + nameStyle + '">' + '{building} {road} {house_number}</span>');
       }
 
       if (a.city || a.town || a.village || a.hamlet) {
-        parts.push(`<span style="${parts.length > 0 ? subTitleStyle : nameStyle}">` + '{postcode} {city} {town} {village} {hamlet}</span>');
+        var style = parts.length > 0 ? subTitleStyle : nameStyle;
+        parts.push('<span style="' + style + '">' + '{postcode} {city} {town} {village} {hamlet}</span>');
       }
 
       if (a.state || a.country) {
-        parts.push(`<span style="${parts.length > 0 ? subTitleStyle : nameStyle}">` + '{state} {country}</span>');
+        var style = parts.length > 0 ? subTitleStyle : nameStyle;
+        parts.push('<span style="' + style + '">' + '{state} {country}</span>');
       }
 
       return template(parts.join('<br/>'), a, true);
