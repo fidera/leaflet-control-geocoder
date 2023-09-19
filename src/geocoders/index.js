@@ -7,6 +7,7 @@ export * from './mapbox';
 export * from './mapquest';
 export * from './neutrino';
 export * from './nominatim';
+export * from './mml';
 export * from './open-location-code';
 export * from './opencage';
 export * from './pelias';
