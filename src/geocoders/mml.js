@@ -107,7 +107,6 @@ export var Mml = L.Class.extend({
     serviceUrl: 'https://avoin-paikkatieto.maanmittauslaitos.fi/geocoding/v2/pelias/',
     apiKey: null, 
     sources: null,
-    reverseQueryParams: {},
     /**
      * @param {object} properties
      */
@@ -126,6 +125,12 @@ export var Mml = L.Class.extend({
     }
   },
 
+  /**
+   * @param {object} options
+   * @param {string} options.serviceUrl - The URL where the data is requested from. Defaults to https://avoin-paikkatieto.maanmittauslaitos.fi/geocoding/v2/pelias/.
+   * @param {string} options.apiKey - MML API key
+   * @param {string} options.sources - The source string. Check the SOURCES variable for available options.
+   */
   initialize: function(options) {
     if (!options.apiKey) return console.error("Error: API key is missing.");
     L.Util.setOptions(this, options);
