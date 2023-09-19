@@ -7,23 +7,21 @@ export var Nominatim = L.Class.extend({
     geocodingQueryParams: {},
     reverseQueryParams: {},
     htmlTemplate: function(r) {
+      var nameStyle = "color: black;";
+      var subTitleStyle = "color: black; opacity: 0.75;";
+
       var a = r.address,
-        className,
         parts = [];
       if (a.road || a.building) {
-        parts.push('{building} {road} {house_number}');
+        parts.push(`<span style="${nameStyle}">` + '{building} {road} {house_number}</span>');
       }
 
       if (a.city || a.town || a.village || a.hamlet) {
-        className = parts.length > 0 ? 'leaflet-control-geocoder-address-detail' : '';
-        parts.push(
-          '<span class="' + className + '">{postcode} {city} {town} {village} {hamlet}</span>'
-        );
+        parts.push(`<span style="${parts.length > 0 ? subTitleStyle : nameStyle}">` + '{postcode} {city} {town} {village} {hamlet}</span>');
       }
 
       if (a.state || a.country) {
-        className = parts.length > 0 ? 'leaflet-control-geocoder-address-context' : '';
-        parts.push('<span class="' + className + '">{state} {country}</span>');
+        parts.push(`<span style="${parts.length > 0 ? subTitleStyle : nameStyle}">` + '{state} {country}</span>');
       }
 
       return template(parts.join('<br/>'), a, true);
