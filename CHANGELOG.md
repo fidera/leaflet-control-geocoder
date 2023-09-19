@@ -6,7 +6,7 @@ Forked from the original branch at version 1.13.0 (https://github.com/perliedman
 
 ### Added
 
-- Added support for the new MML (Maanmittauslaitos) geocoder.
+- Added support for the Maanmittauslaitos (MML) geocoder.
 
 ### Changes
 
