@@ -1,8 +1,8 @@
-# extends:
-#   - eslint:recommended
+extends:
+  - eslint:recommended
 
-# plugins:
-#   - prettier
+plugins:
+  - prettier
 
 env:
   browser: true
@@ -11,5 +11,5 @@ env:
 parserOptions:
   sourceType: module
 
-# rules:
-#   prettier/prettier: warn
+rules:
+  prettier/prettier: warn
